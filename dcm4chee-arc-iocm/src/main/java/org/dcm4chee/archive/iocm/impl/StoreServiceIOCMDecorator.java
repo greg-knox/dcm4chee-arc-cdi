@@ -63,8 +63,10 @@ import org.dcm4chee.archive.entity.Series;
 import org.dcm4chee.archive.iocm.InstanceAlreadyRejectedException;
 import org.dcm4chee.archive.iocm.RejectionEvent;
 import org.dcm4chee.archive.iocm.RejectionService;
+import org.dcm4chee.archive.store.DelegatingStoreService;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreService;
+import org.dcm4chee.conf.cdi.dynamicdecorators.DynamicDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,10 +76,10 @@ import org.slf4j.LoggerFactory;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
-@Decorator
-public abstract class StoreServiceIOCMDecorator implements StoreService {
+@DynamicDecorator
+public class StoreServiceIOCMDecorator extends DelegatingStoreService {
 
-    public static int DUPLICATE_REJECTION_NOTE = Status.CannotUnderstand + 0x800;
+	public static int DUPLICATE_REJECTION_NOTE = Status.CannotUnderstand + 0x800;
     public static int OCCURENCE_OF_REJECTED_INSTANCE = Status.CannotUnderstand + 0x801;
     public static int STUDY_MISMATCH = Status.CannotUnderstand + 0x802;
     public static int CLASS_INSTANCE_CONFLICT = Status.CannotUnderstand + 0x803;
@@ -86,8 +88,6 @@ public abstract class StoreServiceIOCMDecorator implements StoreService {
     public static int NO_MPPS = Status.CannotUnderstand + 0x806;
 
     static Logger LOG = LoggerFactory.getLogger(StoreServiceIOCMDecorator.class);
-
-    @Inject @Delegate StoreService storeService;
 
     @Inject RejectionService rejectionService;
 
@@ -127,13 +127,13 @@ public abstract class StoreServiceIOCMDecorator implements StoreService {
                         "subsequent occurrence of rejected instance");
             return action;
         }
-        return storeService.instanceExists(em, context, inst);
+        return getNextDecorator().instanceExists(em, context, inst);
     }
 
     @Override
     public Instance findOrCreateInstance(EntityManager em, StoreContext context)
             throws DicomServiceException {
-        Instance inst = storeService.findOrCreateInstance(em, context);
+        Instance inst = getNextDecorator().findOrCreateInstance(em, context);
         ArchiveDeviceExtension arcDev = context.getStoreSession()
                 .getDevice()
                 .getDeviceExtension(ArchiveDeviceExtension.class);
@@ -151,7 +151,7 @@ public abstract class StoreServiceIOCMDecorator implements StoreService {
 
     @Override
     public void fireStoreEvent(StoreContext context) {
-        storeService.fireStoreEvent(context);
+        getNextDecorator().fireStoreEvent(context);
         RejectionParam rejectionNote =
                 (RejectionParam) context.getProperty(RejectionParam.class.getName());
         if (rejectionNote != null) {

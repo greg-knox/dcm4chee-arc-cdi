@@ -148,6 +148,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     @ConfigurableProperty(name = "dcmFetchAETitle")
     private String fetchAETitle = "DCM4CHEE_FETCH";
+    
+    @ConfigurableProperty(name = "dcmDisabledDecorators")
+    private String[] disabledDecorators = {};
 
     private transient FuzzyStr fuzzyStr;
     private transient TemplatesCache templatesCache;
@@ -415,6 +418,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setFetchAETitle(String fetchAETitle) {
         this.fetchAETitle = fetchAETitle;
+    }
+    
+    public String[] getDisabledDecorators() {
+    	return disabledDecorators;
+    }
+    
+    public void setDisabledDecorators(String ... disabledDecorators) {
+    	this.disabledDecorators = disabledDecorators;
     }
 
 }
