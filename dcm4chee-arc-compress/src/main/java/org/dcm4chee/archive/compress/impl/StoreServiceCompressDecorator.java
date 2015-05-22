@@ -58,7 +58,7 @@ import org.dcm4chee.archive.conf.ArchiveAEExtension;
 import org.dcm4chee.archive.store.DelegatingStoreService;
 import org.dcm4chee.archive.store.StoreContext;
 import org.dcm4chee.archive.store.StoreSession;
-import org.dcm4chee.conf.cdi.dynamicdecorators.DynamicDecorator;
+import org.dcm4chee.conf.decorators.DynamicDecorator;
 import org.dcm4chee.storage.ObjectAlreadyExistsException;
 import org.dcm4chee.storage.StorageContext;
 import org.dcm4chee.storage.service.StorageService;
